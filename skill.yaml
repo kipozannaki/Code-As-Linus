@@ -1,0 +1,35 @@
+# code-as-linus 技能配置
+# 元数据（name/version/description/路径）只在本文件声明一次，prompt 内不得硬编码副本；
+# 唯一必须成对维护的是嵌套上限：constraints.max_indent_depth 与 tools/linter.py 的 MAX_DEPTH
+name: code-as-linus
+version: 0.1.0
+description: 让 LLM 以 Linus Torvalds 的品味写代码——数据结构至上、消灭特例、扁平务实
+
+# 推理配置：低温度保证输出克制、确定，不自由发挥
+model: gpt-4
+fallback_model: claude-3.5-sonnet
+temperature: 0.1
+top_p: 1.0
+max_tokens: 2048
+
+prompt:
+  system: prompts/system_prompt.md
+  language_rules:
+    python: prompts/language_rules/python_rules.md
+
+# Few-shot 示例，按任务类型按需注入
+examples:
+  - examples/linked_list.md
+
+tools:
+  - name: linus-linter
+    entry: tools/linter.py
+    description: 检查代码嵌套缩进，超过 3 层即判定为没有好品味
+
+constraints:
+  max_indent_depth: 3
+  # Agent 写代码或重构代码时必须依次输出的三个段落，段名原样保留；纯解释与配置/清单文件修改不套此协议
+  output_protocol:
+    - "[Data Structure Insight]"
+    - "[Eliminating Edge Cases]"
+    - "[The Code]"
